@@ -4,7 +4,8 @@ import api from "../services/api";
 function StudentDashboard() {
   const [assessments, setAssessments] = useState([]);
   const [submissions, setSubmissions] = useState([]);
-  const [selectedAssessment, setSelectedAssessment] = useState(null);
+  const [selectedAssessment, setSelectedAssessment] =
+    useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -16,11 +17,13 @@ function StudentDashboard() {
       setLoading(true);
       setError("");
 
-      const [assessmentResponse, submissionResponse] =
-        await Promise.all([
-          api.get("/assessments"),
-          api.get("/submissions/my"),
-        ]);
+      const [
+        assessmentResponse,
+        submissionResponse,
+      ] = await Promise.all([
+        api.get("/assessments"),
+        api.get("/submissions/my"),
+      ]);
 
       setAssessments(
         assessmentResponse.data.assessments || []
@@ -90,7 +93,10 @@ function StudentDashboard() {
     }
   };
 
-  const handleAnswerChange = (questionId, answer) => {
+  const handleAnswerChange = (
+    questionId,
+    answer
+  ) => {
     setAnswers((previousAnswers) => ({
       ...previousAnswers,
       [questionId]: answer,
@@ -112,11 +118,12 @@ function StudentDashboard() {
       setError("");
       setMessage("");
 
-      const unansweredQuestion = selectedAssessment.questions.find(
-        (question) =>
-          !answers[question._id] ||
-          answers[question._id].trim() === ""
-      );
+      const unansweredQuestion =
+        selectedAssessment.questions.find(
+          (question) =>
+            !answers[question._id] ||
+            answers[question._id].trim() === ""
+        );
 
       if (unansweredQuestion) {
         setError(
@@ -126,17 +133,22 @@ function StudentDashboard() {
       }
 
       const formattedAnswers =
-        selectedAssessment.questions.map((question) => ({
-          questionId: question._id,
-          answer: answers[question._id].trim(),
-        }));
+        selectedAssessment.questions.map(
+          (question) => ({
+            questionId: question._id,
+            answer:
+              answers[question._id].trim(),
+          })
+        );
 
       await api.post("/submissions", {
         assessmentId: selectedAssessment._id,
         answers: formattedAnswers,
       });
 
-      setMessage("Assessment submitted successfully.");
+      setMessage(
+        "Assessment submitted successfully."
+      );
 
       await loadStudentData();
 
@@ -230,38 +242,126 @@ function StudentDashboard() {
                 <p>{question.questionText}</p>
 
                 <p>
+                  <strong>Type:</strong>{" "}
+                  {question.type === "mcq"
+                    ? "Multiple Choice"
+                    : "Descriptive"}
+                </p>
+
+                <p>
                   <strong>Marks:</strong>{" "}
                   {question.marks}
                 </p>
 
-                <label
-                  htmlFor={`answer-${question._id}`}
-                >
-                  Your Answer
-                </label>
+                {question.type === "mcq" ? (
+                  <div>
+                    <p>
+                      <strong>
+                        Select one answer:
+                      </strong>
+                    </p>
 
-                <textarea
-                  id={`answer-${question._id}`}
-                  value={
-                    answers[question._id] || ""
-                  }
-                  onChange={(e) =>
-                    handleAnswerChange(
-                      question._id,
-                      e.target.value
-                    )
-                  }
-                  required
-                  rows="5"
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    marginTop: "8px",
-                    fontFamily: "inherit",
-                    fontSize: "1rem",
-                    resize: "vertical",
-                  }}
-                />
+                    {question.options?.map(
+                      (option, optionIndex) => {
+                        const optionId =
+                          `question-${question._id}-option-${optionIndex}`;
+
+                        return (
+                          <div
+                            key={optionIndex}
+                            style={{
+                              marginBottom:
+                                "12px",
+                              padding: "10px",
+                              border:
+                                "1px solid #555",
+                              borderRadius:
+                                "6px",
+                            }}
+                          >
+                            <label
+                              htmlFor={
+                                optionId
+                              }
+                              style={{
+                                display:
+                                  "flex",
+                                alignItems:
+                                  "center",
+                                gap: "10px",
+                                cursor:
+                                  "pointer",
+                                marginBottom:
+                                  0,
+                              }}
+                            >
+                              <input
+                                id={optionId}
+                                type="radio"
+                                name={`question-${question._id}`}
+                                value={option}
+                                checked={
+                                  answers[
+                                    question
+                                      ._id
+                                  ] === option
+                                }
+                                onChange={(
+                                  e
+                                ) =>
+                                  handleAnswerChange(
+                                    question._id,
+                                    e.target
+                                      .value
+                                  )
+                                }
+                                required
+                              />
+
+                              <span>
+                                {option}
+                              </span>
+                            </label>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <label
+                      htmlFor={`answer-${question._id}`}
+                    >
+                      Your Answer
+                    </label>
+
+                    <textarea
+                      id={`answer-${question._id}`}
+                      value={
+                        answers[
+                          question._id
+                        ] || ""
+                      }
+                      onChange={(e) =>
+                        handleAnswerChange(
+                          question._id,
+                          e.target.value
+                        )
+                      }
+                      required
+                      rows="5"
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        marginTop: "8px",
+                        fontFamily:
+                          "inherit",
+                        fontSize: "1rem",
+                        resize: "vertical",
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )
           )}
@@ -353,7 +453,9 @@ function StudentDashboard() {
                     borderRadius: "8px",
                   }}
                 >
-                  <h3>{assessment.title}</h3>
+                  <h3>
+                    {assessment.title}
+                  </h3>
 
                   <p>
                     {assessment.description ||
@@ -361,14 +463,19 @@ function StudentDashboard() {
                   </p>
 
                   <p>
-                    <strong>Questions:</strong>{" "}
-                    {assessment.questions?.length ||
-                      0}
+                    <strong>
+                      Questions:
+                    </strong>{" "}
+                    {assessment.questions
+                      ?.length || 0}
                   </p>
 
                   <p>
-                    <strong>Created by:</strong>{" "}
-                    {assessment.createdBy?.name ||
+                    <strong>
+                      Created by:
+                    </strong>{" "}
+                    {assessment.createdBy
+                      ?.name ||
                       "Instructor"}
                   </p>
 
@@ -381,7 +488,8 @@ function StudentDashboard() {
                       )
                     }
                     style={{
-                      padding: "10px 18px",
+                      padding:
+                        "10px 18px",
                       cursor: submitted
                         ? "not-allowed"
                         : "pointer",
@@ -403,8 +511,8 @@ function StudentDashboard() {
 
         {submissions.length === 0 ? (
           <p>
-            You have not submitted any assessments
-            yet.
+            You have not submitted any
+            assessments yet.
           </p>
         ) : (
           <div
@@ -413,48 +521,67 @@ function StudentDashboard() {
               gap: "15px",
             }}
           >
-            {submissions.map((submission) => (
-              <div
-                key={submission._id}
-                style={{
-                  padding: "20px",
-                  border: "1px solid #666",
-                  borderRadius: "8px",
-                }}
-              >
-                <h3>
-                  {submission.assessment?.title ||
-                    "Assessment"}
-                </h3>
+            {submissions.map(
+              (submission) => (
+                <div
+                  key={submission._id}
+                  style={{
+                    padding: "20px",
+                    border:
+                      "1px solid #666",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <h3>
+                    {submission.assessment
+                      ?.title ||
+                      "Assessment"}
+                  </h3>
 
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {submission.status}
-                </p>
-
-                <p>
-                  <strong>Score:</strong>{" "}
-                  {submission.score !== null &&
-                  submission.score !== undefined
-                    ? `${submission.score}%`
-                    : "Not scored yet"}
-                </p>
-
-                {submission.feedback && (
                   <p>
-                    <strong>Feedback:</strong>{" "}
-                    {submission.feedback}
+                    <strong>
+                      Status:
+                    </strong>{" "}
+                    {submission.status}
                   </p>
-                )}
 
-                {submission.evaluatedBy && (
                   <p>
-                    <strong>Reviewed by:</strong>{" "}
-                    {submission.evaluatedBy.name}
+                    <strong>
+                      Score:
+                    </strong>{" "}
+                    {submission.score !==
+                      null &&
+                    submission.score !==
+                      undefined
+                      ? `${submission.score}%`
+                      : "Not scored yet"}
                   </p>
-                )}
-              </div>
-            ))}
+
+                  {submission.feedback && (
+                    <p>
+                      <strong>
+                        Feedback:
+                      </strong>{" "}
+                      {
+                        submission.feedback
+                      }
+                    </p>
+                  )}
+
+                  {submission.evaluatedBy && (
+                    <p>
+                      <strong>
+                        Reviewed by:
+                      </strong>{" "}
+                      {
+                        submission
+                          .evaluatedBy.name
+                      }
+                    </p>
+                  )}
+                </div>
+              )
+            )}
           </div>
         )}
       </section>

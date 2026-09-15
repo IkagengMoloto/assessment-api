@@ -8,6 +8,23 @@ const questionSchema = new mongoose.Schema(
             trim: true
         },
 
+        type: {
+            type: String,
+            enum: ["mcq", "descriptive"],
+            default: "descriptive"
+        },
+
+        options: {
+            type: [String],
+            default: []
+        },
+
+        correctAnswer: {
+            type: String,
+            trim: true,
+            default: ""
+        },
+
         marks: {
             type: Number,
             required: true,
@@ -52,6 +69,12 @@ const assessmentSchema = new mongoose.Schema(
         isActive: {
             type: Boolean,
             default: true
+        },
+
+        approvalStatus: {
+            type: String,
+            enum: ["pending", "approved", "rejected"],
+            default: "approved"
         }
     },
     {

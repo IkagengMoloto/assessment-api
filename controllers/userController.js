@@ -7,6 +7,7 @@ exports.createUser = async (req, res) => {
         const allowedRoles = [
             "admin",
             "student",
+            "instructor",
             "evaluator"
         ];
 

@@ -8,7 +8,10 @@ const {
     getMySubmissions,
     getPendingSubmissions,
     startReview,
-    scoreSubmission
+    scoreSubmission,
+    getInstructorPerformance,
+    startInstructorReview,
+    scoreInstructorSubmission
 } = require("../controllers/submissionController");
 
 const router = express.Router();
@@ -27,6 +30,34 @@ router.get(
     protect,
     authorizeRoles("student"),
     getMySubmissions
+);
+
+// INSTRUCTOR: View student performance
+// Only submissions for assessments created
+// by the logged-in instructor are returned.
+router.get(
+    "/instructor/performance",
+    protect,
+    authorizeRoles("instructor"),
+    getInstructorPerformance
+);
+
+// INSTRUCTOR: Start reviewing a submission
+// Ownership is checked inside the controller.
+router.patch(
+    "/instructor/:id/review",
+    protect,
+    authorizeRoles("instructor"),
+    startInstructorReview
+);
+
+// INSTRUCTOR: Score a submission
+// Ownership is checked inside the controller.
+router.patch(
+    "/instructor/:id/score",
+    protect,
+    authorizeRoles("instructor"),
+    scoreInstructorSubmission
 );
 
 // EVALUATOR: View submissions waiting for review

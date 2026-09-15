@@ -11,11 +11,11 @@ const {
 
 const router = express.Router();
 
-// ADMIN: Create assessment
+// ADMIN / INSTRUCTOR: Create assessment
 router.post(
     "/",
     protect,
-    authorizeRoles("admin"),
+    authorizeRoles("admin", "instructor"),
     createAssessment
 );
 
