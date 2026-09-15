@@ -48,7 +48,8 @@ exports.createUser = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                isActive: user.isActive
             }
         });
 
@@ -60,15 +61,80 @@ exports.createUser = async (req, res) => {
     }
 };
 
+
+// ADMIN: Get all users
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find()
-            .select("-password");
+            .select("-password")
+            .sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
             count: users.length,
             users
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+// ADMIN: Activate or block a user
+exports.updateUserStatus = async (req, res) => {
+    try {
+        const { isActive } = req.body;
+
+        if (typeof isActive !== "boolean") {
+            return res.status(400).json({
+                success: false,
+                message: "isActive must be true or false"
+            });
+        }
+
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        // Prevent administrator from blocking
+        // their own currently logged-in account.
+        if (
+            user._id.toString() ===
+            req.user._id.toString() &&
+            isActive === false
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "You cannot block your own account"
+            });
+        }
+
+        user.isActive = isActive;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: isActive
+                ? "User activated successfully"
+                : "User blocked successfully",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isActive: user.isActive
+            }
         });
 
     } catch (error) {

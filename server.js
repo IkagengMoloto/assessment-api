@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const assessmentRoutes = require("./routes/assessmentRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -32,12 +33,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/assessments", assessmentRoutes);
 app.use("/api/submissions", submissionRoutes);
+app.use("/api/admin", adminRoutes);
 
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({
         success: false,
-        message: `Route not found: ${req.method} ${req.originalUrl}`
+        message:
+            `Route not found: ${req.method} ${req.originalUrl}`
     });
 });
 
@@ -47,7 +50,8 @@ app.use((err, req, res, next) => {
 
     res.status(err.status || 500).json({
         success: false,
-        message: err.message || "Internal server error"
+        message:
+            err.message || "Internal server error"
     });
 });
 

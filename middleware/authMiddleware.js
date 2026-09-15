@@ -9,13 +9,15 @@ const protect = async (req, res, next) => {
             req.headers.authorization &&
             req.headers.authorization.startsWith("Bearer ")
         ) {
-            token = req.headers.authorization.split(" ")[1];
+            token =
+                req.headers.authorization.split(" ")[1];
         }
 
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: "Access denied. No token provided."
+                message:
+                    "Access denied. No token provided."
             });
         }
 
@@ -24,13 +26,25 @@ const protect = async (req, res, next) => {
             process.env.JWT_SECRET
         );
 
-        const user = await User.findById(decoded.id)
-            .select("-password");
+        const user = await User.findById(
+            decoded.id
+        ).select("-password");
 
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: "User no longer exists."
+                message:
+                    "User no longer exists."
+            });
+        }
+
+        // Reject blocked accounts even when
+        // they already have a valid JWT.
+        if (user.isActive === false) {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "Your account has been blocked. Please contact an administrator."
             });
         }
 
@@ -41,7 +55,8 @@ const protect = async (req, res, next) => {
     } catch (error) {
         return res.status(401).json({
             success: false,
-            message: "Invalid or expired token."
+            message:
+                "Invalid or expired token."
         });
     }
 };

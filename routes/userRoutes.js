@@ -5,11 +5,13 @@ const authorizeRoles = require("../middleware/roleMiddleware");
 
 const {
     createUser,
-    getUsers
+    getUsers,
+    updateUserStatus
 } = require("../controllers/userController");
 
 const router = express.Router();
 
+// ADMIN: Create a new user
 router.post(
     "/",
     protect,
@@ -17,11 +19,20 @@ router.post(
     createUser
 );
 
+// ADMIN: View all users
 router.get(
     "/",
     protect,
     authorizeRoles("admin"),
     getUsers
+);
+
+// ADMIN: Activate or block a user
+router.patch(
+    "/:id/status",
+    protect,
+    authorizeRoles("admin"),
+    updateUserStatus
 );
 
 module.exports = router;

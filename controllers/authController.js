@@ -6,11 +6,14 @@ const generateToken = (id) => {
         { id },
         process.env.JWT_SECRET,
         {
-            expiresIn: process.env.JWT_EXPIRES_IN || "1d"
+            expiresIn:
+                process.env.JWT_EXPIRES_IN || "1d"
         }
     );
 };
 
+
+// STUDENT: Register
 exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -18,11 +21,13 @@ exports.register = async (req, res) => {
         if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
-                message: "Name, email and password are required"
+                message:
+                    "Name, email and password are required"
             });
         }
 
-        const existingUser = await User.findOne({ email });
+        const existingUser =
+            await User.findOne({ email });
 
         if (existingUser) {
             return res.status(400).json({
@@ -40,12 +45,14 @@ exports.register = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Student registered successfully",
+            message:
+                "Student registered successfully",
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                isActive: user.isActive
             }
         });
 
@@ -57,6 +64,8 @@ exports.register = async (req, res) => {
     }
 };
 
+
+// LOGIN
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -64,11 +73,13 @@ exports.login = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
-                message: "Email and password are required"
+                message:
+                    "Email and password are required"
             });
         }
 
-        const user = await User.findOne({ email });
+        const user =
+            await User.findOne({ email });
 
         if (
             !user ||
@@ -77,6 +88,15 @@ exports.login = async (req, res) => {
             return res.status(401).json({
                 success: false,
                 message: "Invalid credentials"
+            });
+        }
+
+        // Block inactive accounts from logging in.
+        if (user.isActive === false) {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "Your account has been blocked. Please contact an administrator."
             });
         }
 
@@ -89,7 +109,8 @@ exports.login = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                isActive: user.isActive
             }
         });
 
