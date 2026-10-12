@@ -1,809 +1,311 @@
-# Assessment Management REST API
+# Interview Preparation Platform
 
-## Project Overview
+**Full-Stack MERN Capstone Project — Full Stack Web and Software Development, Intermediate Batch-2**
 
-The Assessment Management REST API is a backend application developed using Node.js, Express.js, MongoDB, and Mongoose.
+An interview preparation and assessment platform built with MongoDB, Express.js, React, and Node.js. The application supports role-based assessment creation, administrative approval, student submissions, instructor review, scoring, and feedback.
 
-The system provides secure authentication and role-based access control for three types of users:
+## Features
 
-- Admin
-- Student
-- Evaluator
+### Student
+- Register and sign in securely.
+- Browse approved assessments and answer multiple-choice or descriptive questions.
+- Submit an assessment once; duplicate attempts are prevented.
+- View submission status, scores, reviewer feedback, and completed assessments.
 
-Administrators can create assessments and questions. Students can view and submit assessments. Evaluators can review submitted assessments and assign scores between 0 and 100.
+### Instructor
+- Create assessments with multiple-choice and descriptive questions.
+- Manage questions and view student submissions.
+- Start reviews, assign scores from 0 to 100, and provide written feedback.
+- View student performance information.
+- Submit newly created assessments for administrative approval before students can access them.
 
-The system uses JSON Web Tokens (JWT) for authentication and implements role-based authorization middleware to protect API endpoints.
+### Administrator
+- Manage user accounts and account access.
+- Review, approve, or reject assessments submitted for publication.
+- View platform analytics, including users, assessments, and submission scores.
 
----
+### Evaluator (API role)
+- Access assigned submission-review endpoints, transition submissions to review, and record scores and feedback.
 
-## Technologies Used
+## Technology Stack
 
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- JSON Web Token (JWT)
-- bcryptjs
-- dotenv
-- CORS
-- Nodemon
-- Postman
-- MongoDB Compass
-- Visual Studio Code
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React 19, Vite 8, React Router 7, Axios |
+| Backend | Node.js, Express 5 |
+| Database | MongoDB, Mongoose |
+| Authentication | JSON Web Tokens (JWT), bcryptjs |
+| Development | npm, Nodemon, ESLint, Postman |
 
----
-
-## Project Architecture
-
-The application follows a modular backend architecture:
+## Architecture
 
 ```text
-Postman / API Client
-        |
-        v
-Express REST API
-        |
-        v
-Authentication Middleware
-        |
-        v
-Role Authorization Middleware
-        |
-        v
-Controllers
-        |
-        v
-Mongoose Models
-        |
-        v
-MongoDB Database
+Browser
+  |
+  v
+React / Vite frontend (localhost:5173)
+  |
+  | Axios HTTP requests + JWT
+  v
+Express REST API (localhost:5000)
+  |
+  +-- Authentication and role authorization middleware
+  +-- Routes and controllers
+  +-- Mongoose models
+  |
+  v
+MongoDB (127.0.0.1:27017)
 ```
 
----
-
-## Project Structure
+## Repository Layout
 
 ```text
 assessment-api/
-|
-|-- config/
-|   |-- db.js
-|
-|-- controllers/
-|   |-- assessmentController.js
-|   |-- authController.js
-|   |-- submissionController.js
-|   |-- userController.js
-|
-|-- middleware/
-|   |-- authMiddleware.js
-|   |-- roleMiddleware.js
-|
-|-- models/
-|   |-- Assessment.js
-|   |-- Submission.js
-|   |-- User.js
-|
-|-- routes/
-|   |-- assessmentRoutes.js
-|   |-- authRoutes.js
-|   |-- submissionRoutes.js
-|   |-- userRoutes.js
-|
-|-- .env
-|-- .gitignore
-|-- package.json
-|-- seedAdmin.js
-|-- server.js
-|-- README.md
+├── config/                # Database configuration
+├── controllers/           # API business logic
+│   ├── adminController.js
+│   ├── assessmentController.js
+│   ├── authController.js
+│   ├── submissionController.js
+│   └── userController.js
+├── middleware/            # Authentication, authorization, error handling
+├── models/                # User, Assessment, Submission
+├── routes/                # API endpoints
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── InstructorDashboard.jsx
+│   │   │   └── StudentDashboard.jsx
+│   │   └── services/api.js
+│   └── package.json
+├── seedAdmin.js
+├── server.js
+├── package.json
+└── README.md
 ```
 
----
+## Prerequisites
 
-# User Roles
+- Node.js and npm (the project was tested with Node.js 24).
+- MongoDB running locally, or access to a configured MongoDB instance.
+- Git (to clone the repository).
 
-## Admin
+## Installation and Local Development
 
-The Admin is responsible for administrative functions.
+### 1. Clone the repository
 
-Admin capabilities include:
-
-- Login
-- Create users
-- View users
-- Create assessments
-- Create assessment questions
-- View assessments
-
----
-
-## Student
-
-Students can:
-
-- Register
-- Login
-- View assessments
-- Submit assessment answers
-- View their own submissions
-- View scores
-- View evaluator feedback
-
-A student cannot submit the same assessment more than once.
-
----
-
-## Evaluator
-
-Evaluators can:
-
-- Login
-- View submitted assessments
-- Move submissions to pending review
-- Score submissions
-- Provide feedback
-
-Scores must be between 0 and 100.
-
----
-
-# Authentication
-
-The API uses JSON Web Token (JWT) authentication.
-
-After successful login, the API returns a JWT.
-
-Example:
-
-```json
-{
-  "success": true,
-  "token": "JWT_TOKEN",
-  "user": {
-    "id": "USER_ID",
-    "name": "System Admin",
-    "email": "admin@test.com",
-    "role": "admin"
-  }
-}
+```powershell
+git clone https://github.com/IkagengMoloto/assessment-api.git
+cd assessment-api
 ```
 
-Protected endpoints require:
+### 2. Install backend dependencies
 
-```text
+```powershell
+npm install
+```
+
+### 3. Configure backend environment
+
+Create a `.env` file **in the repository root**:
+
+```env
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/assessment_db
+JWT_SECRET=replace_with_a_long_random_secret
+JWT_EXPIRES_IN=1d
+```
+
+Use a strong, unique JWT secret. **Do not commit `.env` or real credentials to GitHub.**
+
+### 4. Start MongoDB
+
+Ensure MongoDB is listening on `127.0.0.1:27017`, or update `MONGO_URI` to your environment.
+
+### 5. Start the backend
+
+In PowerShell terminal 1, from the repository root:
+
+```powershell
+npm run dev
+```
+
+The backend listens at `http://localhost:5000`. To check it, visit `http://localhost:5000/`.
+
+Other backend commands:
+
+```powershell
+npm start          # Run with Node.js
+npm run seed:admin # Seed initial admin (use only as needed)
+```
+
+Review `seedAdmin.js` before seeding and change any default/demo credentials before using the application outside local testing.
+
+### 6. Install and start the frontend
+
+In PowerShell terminal 2:
+
+```powershell
+cd assessment-api\frontend  # Omit if you are already in the frontend directory
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser. Keep the backend and frontend running in separate terminals.
+
+Frontend quality and build commands:
+
+```powershell
+npm run build
+npm run lint
+npm run preview
+```
+
+> The frontend expects the API to be available at the configured backend address. If using different ports or hosts, review `frontend/src/services/api.js` and the frontend configuration.
+
+## User Roles and Access Control
+
+| Role | Main capabilities |
+| --- | --- |
+| Student | View approved assessments, submit answers, view scores and feedback |
+| Instructor | Create assessments, manage questions, review and score submissions, view performance |
+| Admin | Manage users, approve/reject assessments, view analytics |
+| Evaluator | Review and score submissions through supported API endpoints |
+
+JWT authentication protects private endpoints. Requests include the header:
+
+```http
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-Passwords are hashed using bcrypt before being stored in MongoDB.
+Passwords are stored as bcrypt hashes. The API applies authorization checks and validates submitted data. Access may be denied with `401 Unauthorized` (missing or invalid authentication) or `403 Forbidden` (insufficient role permissions).
 
----
+## Assessment Lifecycle
 
-# Role-Based Access Control
+1. **Instructor creates an assessment** containing MCQ or descriptive questions.
+2. **Admin reviews the assessment** and approves or rejects it.
+3. **Student views approved assessments** and submits answers.
+4. **Instructor starts review** for descriptive submissions, changing the status from `submitted` to `pending_review`.
+5. **Instructor scores the submission** and adds feedback, changing the status to `scored`.
+6. **Student views the final score and feedback** on the dashboard.
 
-Authorization middleware restricts API operations according to the authenticated user's role.
-
-Examples:
-
-```text
-Admin      -> Create assessments
-Student    -> Submit assessments
-Evaluator  -> Review and score submissions
-```
-
-Unauthorized roles receive:
+Multiple-choice questions support automatic grading where applicable. Scores are on a 0–100 scale. The submission model uses a compound unique index on student and assessment to prevent multiple attempts for the same assessment.
 
 ```text
-403 Forbidden
+Assessment: pending approval --> approved / rejected
+
+Submission: submitted --> pending_review --> scored
 ```
 
-Example:
-
-```json
-{
-  "success": false,
-  "message": "Role 'student' is not authorized to access this resource"
-}
-```
-
-Requests without authentication receive:
-
-```text
-401 Unauthorized
-```
-
----
-
-# Assessment Workflow
-
-The submission workflow follows three states:
-
-```text
-submitted
-    |
-    v
-pending_review
-    |
-    v
-scored
-```
-
-### Step 1 — Student submits assessment
-
-Initial status:
-
-```text
-submitted
-```
-
-### Step 2 — Evaluator starts review
-
-Status changes to:
-
-```text
-pending_review
-```
-
-### Step 3 — Evaluator scores submission
-
-Status changes to:
-
-```text
-scored
-```
-
-The final submission contains:
-
-- Score
-- Evaluator
-- Feedback
-- Submission status
-
----
-
-# Database Models
-
-## User
-
-Important fields:
-
-```text
-name
-email
-password
-role
-createdAt
-updatedAt
-```
-
-Allowed roles:
-
-```text
-admin
-student
-evaluator
-```
-
----
-
-## Assessment
-
-Important fields:
-
-```text
-title
-description
-questions
-createdBy
-isActive
-createdAt
-updatedAt
-```
-
-Each question contains:
-
-```text
-questionText
-marks
-```
-
----
-
-## Submission
-
-Important fields:
-
-```text
-assessment
-student
-answers
-status
-score
-evaluatedBy
-feedback
-createdAt
-updatedAt
-```
-
-The Submission model references:
-
-```text
-Assessment
-User (Student)
-User (Evaluator)
-```
-
-A compound unique database index prevents the same student from submitting the same assessment more than once.
-
----
-
-# API Endpoints
-
-## Authentication
-
-### Register Student
-
-```http
-POST /api/auth/register
-```
-
-Example request:
-
-```json
-{
-  "name": "Test Student",
-  "email": "student@example.com",
-  "password": "password123"
-}
-```
-
----
-
-### Login
-
-```http
-POST /api/auth/login
-```
-
-Example:
-
-```json
-{
-  "email": "admin@test.com",
-  "password": "<ADMIN_PASSWORD>"
-}
-```
-
----
-
-# User Management
-
-## Create User
-
-Admin only.
-
-```http
-POST /api/users
-```
-
-Example:
-
-```json
-{
-  "name": "Test Evaluator",
-  "email": "evaluator@example.com",
-  "password": "SecurePassword123!",
-  "role": "evaluator"
-}
-```
-
----
-
-## Get Users
-
-Admin only.
-
-```http
-GET /api/users
-```
-
----
-
-# Assessments
-
-## Create Assessment
-
-Admin only.
-
-```http
-POST /api/assessments
-```
-
-Example:
-
-```json
-{
-  "title": "JavaScript Fundamentals",
-  "description": "Intermediate JavaScript assessment",
-  "questions": [
-    {
-      "questionText": "Explain the difference between let and const.",
-      "marks": 10
-    },
-    {
-      "questionText": "What is an asynchronous function?",
-      "marks": 10
-    },
-    {
-      "questionText": "Explain the purpose of a REST API.",
-      "marks": 10
-    }
-  ]
-}
-```
-
----
-
-## Get Assessments
-
-Authenticated users.
-
-```http
-GET /api/assessments
-```
-
----
-
-## Get Assessment by ID
-
-Authenticated users.
-
-```http
-GET /api/assessments/:id
-```
-
----
-
-# Submissions
-
-## Submit Assessment
-
-Student only.
+## Data Models
+
+**User:** name, email, password hash, role, account active status, timestamps.
+
+**Assessment:** title, description, questions, creator, approval status, timestamps. Questions support descriptive and multiple-choice formats with marks and answer options where relevant.
+
+**Submission:** assessment reference, student reference, answers, status, score, reviewer reference, feedback, timestamps.
+
+## Selected REST API Endpoints
+
+The backend API is available under `http://localhost:5000`.
+
+| Method | Endpoint | Purpose / role |
+| --- | --- | --- |
+| POST | `/api/auth/register` | Register student |
+| POST | `/api/auth/login` | Authenticate and obtain JWT |
+| GET | `/api/users` | List users (admin) |
+| POST | `/api/users` | Create user (admin) |
+| GET | `/api/assessments` | Retrieve assessments according to role and visibility |
+| GET | `/api/assessments/:id` | Retrieve an assessment |
+| POST | `/api/assessments` | Create assessment (authorized creator) |
+| POST | `/api/submissions` | Submit answers (student) |
+| GET | `/api/submissions/my` | Student's own submissions |
+| GET | `/api/submissions/instructor/performance` | Instructor performance overview |
+| PATCH | `/api/submissions/instructor/:id/review` | Instructor starts review |
+| PATCH | `/api/submissions/instructor/:id/score` | Instructor records score and feedback |
+| GET | `/api/submissions/pending` | Pending submissions (evaluator) |
+| PATCH | `/api/submissions/:id/review` | Evaluator starts review |
+| PATCH | `/api/submissions/:id/score` | Evaluator records score and feedback |
+
+Additional admin routes provide user management, assessment approvals, and analytics. Refer to `routes/adminRoutes.js` and the other route files for the complete current endpoint definitions.
+
+### Example: Student submission
 
 ```http
 POST /api/submissions
+Authorization: Bearer <STUDENT_JWT>
+Content-Type: application/json
 ```
-
-Example:
 
 ```json
 {
   "assessmentId": "<ASSESSMENT_ID>",
   "answers": [
     {
-      "questionId": "<QUESTION_ID_1>",
-      "answer": "Answer to question one"
-    },
-    {
-      "questionId": "<QUESTION_ID_2>",
-      "answer": "Answer to question two"
-    },
-    {
-      "questionId": "<QUESTION_ID_3>",
-      "answer": "Answer to question three"
+      "questionId": "<QUESTION_ID>",
+      "answer": "JWTs let the server validate a signed token for protected routes."
     }
   ]
 }
 ```
 
-The API validates that:
-
-- The assessment exists.
-- All questions are answered.
-- Question IDs belong to the assessment.
-- Duplicate question IDs are rejected.
-- Empty answers are rejected.
-- Duplicate assessment submissions are rejected.
-
----
-
-## View My Submissions
-
-Student only.
+### Example: Instructor scoring
 
 ```http
-GET /api/submissions/my
+PATCH /api/submissions/instructor/<SUBMISSION_ID>/score
+Authorization: Bearer <INSTRUCTOR_JWT>
+Content-Type: application/json
 ```
-
----
-
-## View Pending Submissions
-
-Evaluator only.
-
-```http
-GET /api/submissions/pending
-```
-
----
-
-## Start Review
-
-Evaluator only.
-
-```http
-PATCH /api/submissions/:id/review
-```
-
-The submission status changes from:
-
-```text
-submitted -> pending_review
-```
-
----
-
-## Score Submission
-
-Evaluator only.
-
-```http
-PATCH /api/submissions/:id/score
-```
-
-Example:
 
 ```json
 {
-  "score": 85,
-  "feedback": "Good understanding of the concepts."
+  "score": 90,
+  "feedback": "Good explanation of JWT authentication."
 }
 ```
 
-Score validation:
+## Validation and Error Handling
 
-```text
-Minimum: 0
-Maximum: 100
-```
-
-After successful scoring:
-
-```text
-pending_review -> scored
-```
-
----
-
-# HTTP Status Codes
-
-The API uses appropriate HTTP status codes.
+The backend validates assessment submissions, question IDs and answers, user permissions, and scores. It rejects duplicate submissions and uses HTTP status codes including:
 
 | Status | Meaning |
-|---|---|
-| 200 | Request successful |
+| --- | --- |
+| 200 | Successful request |
 | 201 | Resource created |
 | 400 | Invalid request |
-| 401 | Authentication required or invalid token |
-| 403 | User does not have permission |
+| 401 | Authentication missing or invalid |
+| 403 | Access forbidden |
 | 404 | Resource not found |
-| 500 | Internal server error |
+| 500 | Server error |
 
----
+## Testing and Verification
 
-# Validation and Security
+The application was exercised through both API testing and the React browser interface.
 
-The application implements:
+**Completed full-stack integration scenario:**
 
-- JWT authentication
-- Password hashing using bcrypt
-- Protected API routes
-- Role-based authorization
-- Input validation
-- Assessment question validation
-- Score validation from 0–100
-- Duplicate submission protection
-- MongoDB relationship references
-- Environment variables
-- HTTP error handling
+1. Instructor created a descriptive assessment named **Day 5 Final Integration Test**.
+2. Administrator approved the assessment.
+3. Student viewed the approved assessment and submitted an answer explaining JWT authentication.
+4. Instructor moved the submission to `pending_review`.
+5. Instructor awarded **90%** and provided written feedback.
+6. Student dashboard displayed the **scored** status, **90%** result, feedback, and reviewer.
+7. The frontend production build completed successfully with `npm run build`.
 
----
+Other tested areas include JWT login, role-based dashboards, student assessment visibility, question management, and administrator analytics. The README does not claim an automated test suite; the integration scenario above was manually verified.
 
-# Installation
+## Known Considerations
 
-## 1. Install Node.js
+- Older development database records created before approval/account-status fields were introduced may not appear in the current dashboard counts or approval lists. Legacy data should be reviewed or migrated before treating historical analytics as complete.
+- This repository is configured for **local development**. Production deployment requires secure secrets, appropriate CORS settings, database access controls, TLS, and deployment-specific configuration.
+- Never publish real student data, passwords, tokens, or the `.env` file.
 
-Verify:
+## Source Code
 
-```bash
-node --version
-npm --version
-```
+GitHub: https://github.com/IkagengMoloto/assessment-api
 
-## 2. Install MongoDB
+## Project Author
 
-MongoDB must be running locally on:
-
-```text
-127.0.0.1:27017
-```
-
-## 3. Install Dependencies
-
-From the project directory:
-
-```bash
-npm install
-```
-
-## 4. Configure Environment Variables
-
-Create:
-
-```text
-.env
-```
-
-Example:
-
-```env
-PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/assessment_db
-JWT_SECRET=replace_with_a_secure_secret
-JWT_EXPIRES_IN=1d
-```
-
-Never commit the `.env` file to a public repository.
-
----
-
-# Create Initial Admin
-
-Run:
-
-```bash
-node seedAdmin.js
-```
-
-The seed script creates the initial administrator account if it does not already exist.
-
-Change any demonstration/default credentials before deploying the application outside a local development environment.
-
----
-
-# Start Application
-
-Run:
-
-```bash
-npm start
-```
-
-Expected output:
-
-```text
-Server running on port 5000
-MongoDB connected: 127.0.0.1
-```
-
-Test:
-
-```http
-GET http://127.0.0.1:5000/
-```
-
-Expected:
-
-```json
-{
-  "success": true,
-  "message": "Assessment API is running"
-}
-```
-
----
-
-# Postman Testing
-
-The API was tested using Postman.
-
-Testing includes:
-
-1. Student registration
-2. User login
-3. JWT authentication
-4. Missing-token rejection
-5. Admin role restrictions
-6. Student role restrictions
-7. Evaluator role restrictions
-8. Assessment creation
-9. Invalid assessment validation
-10. Student assessment submission
-11. Duplicate submission rejection
-12. Student viewing own submissions
-13. Evaluator viewing pending submissions
-14. Moving submission to pending review
-15. Invalid score rejection
-16. Evaluator scoring submission
-17. Student viewing final score and feedback
-
----
-
-# Example Security Tests
-
-## Missing JWT
-
-Request:
-
-```http
-GET /api/submissions/my
-```
-
-without a JWT.
-
-Expected:
-
-```text
-401 Unauthorized
-```
-
----
-
-## Student Accessing Evaluator Route
-
-Request:
-
-```http
-PATCH /api/submissions/:id/score
-```
-
-using a Student JWT.
-
-Expected:
-
-```text
-403 Forbidden
-```
-
----
-
-## Evaluator Accessing Admin Route
-
-Request:
-
-```http
-POST /api/users
-```
-
-using an Evaluator JWT.
-
-Expected:
-
-```text
-403 Forbidden
-```
-
----
-
-## Invalid Score
-
-Example:
-
-```json
-{
-  "score": 150
-}
-```
-
-Expected:
-
-```text
-400 Bad Request
-```
-
----
-
-# Author
-
-Capstone Project
-
-Full Stack Web and Software Development Intermediate Batch-2
+David Moloto  
+Full Stack Web and Software Development — Intermediate Batch-2
