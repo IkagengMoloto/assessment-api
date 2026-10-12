@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import api from "../services/api";
 
 function ScoreForm({
@@ -159,6 +159,19 @@ function InstructorDashboard() {
         "A question set must contain at least one question."
       );
 
+      return;
+    }
+
+    setQuestions((previousQuestions) =>
+      previousQuestions.filter(
+        (_, questionIndex) =>
+          questionIndex !== index
+      )
+    );
+
+    setError("");
+  };
+
   const handleStartReview = async (submissionId) => {
     try {
       setError("");
@@ -223,19 +236,6 @@ function InstructorDashboard() {
       );
     }
   };
-      return;
-    }
-
-    setQuestions((previousQuestions) =>
-      previousQuestions.filter(
-        (_, questionIndex) =>
-          questionIndex !== index
-      )
-    );
-
-    setError("");
-  };
-
   const updateQuestion = (
     index,
     field,
